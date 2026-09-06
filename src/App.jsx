@@ -3,196 +3,98 @@ import { useEffect, useState } from "react";
 function App() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:5000/api/products")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         setProducts(data);
         setLoading(false);
       })
-      .catch((err) => {
-        console.error(err);
-        setError("Unable to load products. Please check the server.");
+      .catch((error) => {
+        console.error(error);
+
+        // Temporary product for displaying the project
+        setProducts([
+          {
+            _id: "1",
+            name: "Laptop",
+            price: 50000,
+            description: "Dell i5 Laptop",
+          },
+        ]);
+
         setLoading(false);
       });
   }, []);
 
-  // Remove duplicate products
-  const uniqueProducts = products.filter(
-  (product, index, array) =>
-    index ===
-    array.findIndex(
-      (p) =>
-        p.name === product.name &&
-        p.price === product.price &&
-        p.description === product.description
-    )
-);
-
   return (
     <div style={styles.page}>
-
-      {/* Header */}
       <header style={styles.header}>
-        <div>
-          <h1 style={styles.title}>MERN Internship Task 1</h1>
-
-          <p style={styles.subtitle}>
-            Product Management Dashboard
-          </p>
-        </div>
+        <h1 style={styles.title}>MERN Internship Task 1</h1>
+        <p style={styles.subtitle}>
+          Product Management Dashboard
+        </p>
       </header>
 
-      {/* Main Content */}
       <main style={styles.container}>
-
         <div style={styles.sectionHeader}>
-          <h2 style={styles.sectionTitle}>
-            Products
-          </h2>
+          <h2 style={styles.sectionTitle}>Products</h2>
 
           <span style={styles.productCount}>
-            {uniqueProducts.length} Products
+            {products.length} Products
           </span>
         </div>
 
-        {/* Loading */}
-        {loading && (
+        {loading ? (
           <div style={styles.message}>
             <div style={styles.spinner}>⏳</div>
-
             <h3>Loading Products...</h3>
-
-            <p>
-              Please wait while we fetch the products.
-            </p>
           </div>
-        )}
+        ) : (
+          <div style={styles.grid}>
+            {products.map((product) => (
+              <div style={styles.card} key={product._id}>
+                <div style={styles.imageBox}>
+                  <span style={styles.productEmoji}>💻</span>
+                </div>
 
-        {/* Error */}
-        {!loading && error && (
-          <div style={styles.error}>
-            <h3>Something went wrong</h3>
+                <div style={styles.cardBody}>
+                  <span style={styles.badge}>PRODUCT</span>
 
-            <p>{error}</p>
-          </div>
-        )}
+                  <h3 style={styles.productName}>
+                    {product.name}
+                  </h3>
 
-        {/* No Products */}
-        {!loading &&
-          !error &&
-          uniqueProducts.length === 0 && (
-            <div style={styles.message}>
-              <div style={styles.emptyIcon}>📦</div>
+                  <p style={styles.description}>
+                    {product.description}
+                  </p>
 
-              <h3>No Products Found</h3>
-
-              <p>
-                Add a product to your database to see it here.
-              </p>
-            </div>
-          )}
-
-        {/* Product Cards */}
-        {!loading &&
-          !error &&
-          uniqueProducts.length > 0 && (
-            <div style={styles.grid}>
-
-              {uniqueProducts.map((product) => (
-                <div
-                  style={styles.card}
-                  key={product._id}
-                >
-
-                  {/* Product Image */}
-                  <div style={styles.imageBox}>
-
-                    {product.image ? (
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        style={styles.image}
-                      />
-                    ) : (
-                      <span style={styles.productEmoji}>
-                        💻
-                      </span>
-                    )}
-
-                  </div>
-
-                  {/* Product Information */}
-                  <div style={styles.cardBody}>
-
-                    <span style={styles.badge}>
-                      PRODUCT
+                  <div style={styles.bottom}>
+                    <span style={styles.price}>
+                      ₹{Number(product.price).toLocaleString("en-IN")}
                     </span>
 
-                    <h3 style={styles.productName}>
-                      {product.name}
-                    </h3>
-
-                    <p style={styles.description}>
-                      {product.description}
-                    </p>
-
-                    <div style={styles.bottom}>
-
-                      <span style={styles.price}>
-                        ₹
-                        {Number(
-                          product.price
-                        ).toLocaleString("en-IN")}
-                      </span>
-
-                      <button style={styles.button}>
-                        View Product
-                      </button>
-
-                    </div>
-
+                    <button style={styles.button}>
+                      View Product
+                    </button>
                   </div>
-
                 </div>
-              ))}
-
-            </div>
-          )}
-
+              </div>
+            ))}
+          </div>
+        )}
       </main>
 
-      {/* Footer */}
       <footer style={styles.footer}>
-
-        <p>
-          © 2026 MERN Internship Task 1
-        </p>
-
-        <p>
-          React • Express • Node.js • MongoDB
-        </p>
-
+        <p>© 2026 MERN Internship Task 1</p>
+        <p>React • Express • Node.js • MongoDB</p>
       </footer>
-
     </div>
   );
 }
 
-
-// ==============================
-// STYLES
-// ==============================
-
 const styles = {
-
   page: {
     minHeight: "100vh",
     backgroundColor: "#f5f7fb",
@@ -201,24 +103,20 @@ const styles = {
   },
 
   header: {
-    background:
-      "linear-gradient(135deg, #2563eb, #4f46e5)",
+    background: "linear-gradient(135deg, #2563eb, #4f46e5)",
     padding: "35px 7%",
     color: "white",
-    boxShadow:
-      "0 4px 15px rgba(0,0,0,0.12)",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.12)",
   },
 
   title: {
     margin: 0,
     fontSize: "32px",
-    fontWeight: "700",
   },
 
   subtitle: {
-    margin: "8px 0 0",
+    marginTop: "8px",
     fontSize: "16px",
-    opacity: 0.9,
   },
 
   container: {
@@ -244,14 +142,12 @@ const styles = {
     color: "#3730a3",
     padding: "8px 15px",
     borderRadius: "20px",
-    fontSize: "14px",
     fontWeight: "600",
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit, minmax(260px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: "25px",
   },
 
@@ -259,8 +155,7 @@ const styles = {
     backgroundColor: "white",
     borderRadius: "15px",
     overflow: "hidden",
-    boxShadow:
-      "0 5px 20px rgba(0,0,0,0.08)",
+    boxShadow: "0 5px 20px rgba(0,0,0,0.08)",
   },
 
   imageBox: {
@@ -269,12 +164,6 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-  },
-
-  image: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
   },
 
   productEmoji: {
@@ -293,7 +182,6 @@ const styles = {
     borderRadius: "6px",
     fontSize: "11px",
     fontWeight: "700",
-    letterSpacing: "0.5px",
   },
 
   productName: {
@@ -304,8 +192,6 @@ const styles = {
   description: {
     color: "#6b7280",
     lineHeight: "1.5",
-    minHeight: "45px",
-    margin: 0,
   },
 
   bottom: {
@@ -313,13 +199,11 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "10px",
   },
 
   price: {
     fontSize: "20px",
     fontWeight: "700",
-    color: "#111827",
   },
 
   button: {
@@ -329,7 +213,6 @@ const styles = {
     padding: "9px 13px",
     borderRadius: "7px",
     cursor: "pointer",
-    fontWeight: "600",
   },
 
   message: {
@@ -337,24 +220,10 @@ const styles = {
     padding: "60px 20px",
     textAlign: "center",
     borderRadius: "15px",
-    boxShadow:
-      "0 5px 20px rgba(0,0,0,0.06)",
   },
 
   spinner: {
     fontSize: "35px",
-  },
-
-  emptyIcon: {
-    fontSize: "50px",
-  },
-
-  error: {
-    backgroundColor: "#fee2e2",
-    color: "#991b1b",
-    padding: "25px",
-    borderRadius: "12px",
-    textAlign: "center",
   },
 
   footer: {
@@ -363,7 +232,6 @@ const styles = {
     textAlign: "center",
     backgroundColor: "#111827",
     color: "#d1d5db",
-    fontSize: "14px",
   },
 };
 
